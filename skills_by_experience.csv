@@ -1,0 +1,51 @@
+Experience_Level,Skill,Job_Count,Percentage
+Junior,JavaScript,16,51.61
+Junior,Java,13,41.94
+Junior,Python,13,41.94
+Junior,React,13,41.94
+Junior,Git,12,38.71
+Junior,CSS,12,38.71
+Junior,HTML,10,32.26
+Junior,Web Development,9,29.03
+Junior,CI/CD,8,25.81
+Junior,API,8,25.81
+Mid-level,React,8,88.89
+Mid-level,JavaScript,7,77.78
+Mid-level,TypeScript,7,77.78
+Mid-level,Agile,4,44.44
+Mid-level,Git,4,44.44
+Mid-level,Docker,3,33.33
+Mid-level,CSS,3,33.33
+Mid-level,RESTful,3,33.33
+Mid-level,AWS,2,22.22
+Mid-level,Kubernetes,2,22.22
+Senior,React,287,50.98
+Senior,TypeScript,235,41.74
+Senior,JavaScript,207,36.77
+Senior,API,172,30.55
+Senior,Python,163,28.95
+Senior,CI/CD,153,27.18
+Senior,Angular,153,27.18
+Senior,Software Engineering,151,26.82
+Senior,AWS,142,25.22
+Senior,Agile,140,24.87
+Staff,Software Engineering,55,48.25
+Staff,React,32,28.07
+Staff,JavaScript,27,23.68
+Staff,TypeScript,27,23.68
+Staff,Go,25,21.93
+Staff,Python,22,19.3
+Staff,AWS,21,18.42
+Staff,API,19,16.67
+Staff,Kubernetes,17,14.91
+Staff,Java,15,13.16
+Principal,Software Engineering,25,41.67
+Principal,C++,23,38.33
+Principal,Python,17,28.33
+Principal,AWS,15,25.0
+Principal,CI/CD,15,25.0
+Principal,Agile,13,21.67
+Principal,Java,12,20.0
+Principal,React,12,20.0
+Principal,Go,11,18.33
+Principal,TypeScript,11,18.33

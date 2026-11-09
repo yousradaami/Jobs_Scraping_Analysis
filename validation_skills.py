@@ -1,5 +1,3 @@
-
-
 import pandas as pd
 import re
 
@@ -152,7 +150,18 @@ skills = [
     "Redis", "Elasticsearch", "Kafka",
     "Microservices", "API", "HTML", "CSS",
     "RESTful", "GitHub", "GitLab",
-    "Azure DevOps", "Prometheus", "Grafana"
+    "Azure DevOps", "Prometheus", "Grafana",
+        "Rust",
+    "COBOL",
+    "IDMS",
+    "CICS",
+    "Oracle",
+    "PowerShell",
+    "Assembly",
+    "Cryptography",
+    "Microcontroller",
+    "Firmware",
+    "Mainframe",
 ]
 
 

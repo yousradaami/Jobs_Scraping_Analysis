@@ -1,4 +1,3 @@
-
 import requests
 import pandas as pd
 
@@ -34,6 +33,7 @@ try:
             print("URL:", job.get("applicationLink"))
 
         df = pd.DataFrame(jobs)
+
         df.to_csv(
             "himalayas_test.csv",
             index=False,
@@ -45,9 +45,14 @@ try:
     else:
         print("No jobs found.")
 
+except requests.exceptions.Timeout:
+    print("Error: Request timed out.")
+
+except requests.exceptions.HTTPError as e:
+    print("HTTP error:", e)
+
 except requests.exceptions.RequestException as e:
     print("Connection error:", e)
 
 except ValueError:
     print("The response is not valid JSON.")
- 

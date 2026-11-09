@@ -1,4 +1,3 @@
-
 import requests
 import pandas as pd
 import time
@@ -91,7 +90,12 @@ TECH_PATTERN = re.compile(
 )
 
 
+# ==========================================
+# 3. TEXT CLEANING
+# ==========================================
+
 def clean_text(value):
+
     if value is None:
         return ""
 
@@ -106,6 +110,7 @@ def clean_text(value):
 
 
 def is_it_job(title, categories="", description=""):
+
     title = clean_text(title)
     categories = clean_text(categories)
     description = clean_text(description)
@@ -122,8 +127,8 @@ def is_it_job(title, categories="", description=""):
     ):
         return True
 
-    # Generic engineer/analyst roles need technical evidence
     if re.search(r"\b(engineer|analyst|specialist)\b", title, re.I):
+
         return bool(
             TECH_PATTERN.search(title + " " + description[:2000])
         )
@@ -131,11 +136,24 @@ def is_it_job(title, categories="", description=""):
     return False
 
 
+# ==========================================
+# 4. CREATE JOB RECORD
+# ==========================================
+
 def make_record(
-    source, title, company, location,
-    date, description, url, apply_url="",
-    categories="", keyword="", external_id=""
+    source,
+    title,
+    company,
+    location,
+    date,
+    description,
+    url,
+    apply_url="",
+    categories="",
+    keyword="",
+    external_id=""
 ):
+
     title = clean_text(title)
     description = clean_text(description)
 
@@ -148,15 +166,21 @@ def make_record(
     company = clean_text(company)
     location = clean_text(location)
 
-    # Normalize duplicates across different websites
     if company:
+
         key = "|".join([
             title.lower(),
             company.lower(),
             location.lower()
         ])
+
     else:
+
         key = url.lower().split("?")[0].rstrip("/")
+
+    # Generate ID when missing
+    if not external_id:
+        external_id = key
 
     return {
         "Job_ID": str(external_id),
@@ -176,6 +200,7 @@ def make_record(
 
 
 def add_job(record):
+
     if record is None:
         return
 
@@ -185,9 +210,16 @@ def add_job(record):
         all_jobs[key] = record
 
 
+# ==========================================
+# 5. REQUEST HANDLING
+# ==========================================
+
 def request_get(url, params=None):
+
     for attempt in range(4):
+
         try:
+
             response = session.get(
                 url,
                 params=params,
@@ -195,15 +227,21 @@ def request_get(url, params=None):
             )
 
             if response.status_code == 429:
+
                 wait = int(response.headers.get("Retry-After", 60))
+
                 print(f"Rate limited. Waiting {wait} seconds...")
+
                 time.sleep(wait)
+
                 continue
 
             response.raise_for_status()
+
             return response
 
         except requests.RequestException:
+
             if attempt == 3:
                 raise
 
@@ -213,7 +251,7 @@ def request_get(url, params=None):
 
 
 # ==========================================
-# 3. HIMALAYAS API
+# 6. HIMALAYAS API
 # ==========================================
 
 def scrape_himalayas():
@@ -235,6 +273,7 @@ def scrape_himalayas():
                 break
 
             try:
+
                 response = request_get(
                     url,
                     params={
@@ -243,7 +282,11 @@ def scrape_himalayas():
                     }
                 )
 
+                if response is None:
+                    break
+
                 data = response.json()
+
                 jobs = data.get("jobs", [])
 
                 if not jobs:
@@ -254,25 +297,31 @@ def scrape_himalayas():
                     expiry = job.get("expiryDate")
 
                     if expiry:
+
                         if float(expiry) < datetime.now(
                             timezone.utc
                         ).timestamp():
+
                             continue
 
                     guid = str(job.get("guid", ""))
 
                     if guid.startswith("/"):
                         job_url = "https://himalayas.app" + guid
+
                     elif guid.startswith("http"):
                         job_url = guid
+
                     else:
                         job_url = "https://himalayas.app/jobs"
 
                     pub_date = job.get("pubDate")
 
                     if isinstance(pub_date, (int, float)):
+
                         pub_date = datetime.fromtimestamp(
-                            pub_date, timezone.utc
+                            pub_date,
+                            timezone.utc
                         ).isoformat()
 
                     record = make_record(
@@ -301,15 +350,18 @@ def scrape_himalayas():
                 time.sleep(DELAY)
 
             except Exception as error:
+
                 print("Himalayas error:", error)
+
                 source_errors.append(
                     f"Himalayas - {keyword}: {error}"
                 )
+
                 break
 
 
 # ==========================================
-# 4. REMOTE OK JSON API
+# 7. REMOTE OK JSON API
 # ==========================================
 
 def scrape_remoteok():
@@ -322,7 +374,12 @@ def scrape_remoteok():
     url = "https://remoteok.com/api"
 
     try:
+
         response = request_get(url)
+
+        if response is None:
+            return
+
         data = response.json()
 
         for job in data:
@@ -354,12 +411,14 @@ def scrape_remoteok():
         print("Remote OK collection finished.")
 
     except Exception as error:
+
         print("Remote OK error:", error)
+
         source_errors.append(f"Remote OK: {error}")
 
 
 # ==========================================
-# 5. WE WORK REMOTELY RSS
+# 8. WE WORK REMOTELY RSS
 # ==========================================
 
 def scrape_weworkremotely():
@@ -383,7 +442,11 @@ def scrape_weworkremotely():
             break
 
         try:
+
             response = request_get(url)
+
+            if response is None:
+                continue
 
             root = ET.fromstring(response.content)
 
@@ -399,13 +462,15 @@ def scrape_weworkremotely():
                 description = item.findtext("description", "")
                 pub_date = item.findtext("pubDate", "")
 
-                # RSS title is often Company: Job Title
                 parts = title.split(":", 1)
 
                 if len(parts) == 2:
+
                     company = parts[0].strip()
                     job_title = parts[1].strip()
+
                 else:
+
                     company = ""
                     job_title = title
 
@@ -418,7 +483,8 @@ def scrape_weworkremotely():
                     description=description,
                     url=link,
                     categories=category,
-                    keyword="RSS " + category
+                    keyword="RSS " + category,
+                    external_id=link
                 )
 
                 add_job(record)
@@ -426,14 +492,16 @@ def scrape_weworkremotely():
             print(category, "feed collected.")
 
         except Exception as error:
+
             print("We Work Remotely error:", error)
+
             source_errors.append(
                 f"We Work Remotely {category}: {error}"
             )
 
 
 # ==========================================
-# 6. REMOTIVE API
+# 9. REMOTIVE API
 # ==========================================
 
 def scrape_remotive():
@@ -446,10 +514,14 @@ def scrape_remotive():
     url = "https://remotive.com/api/remote-jobs"
 
     try:
+
         response = request_get(
             url,
             params={"category": "software-dev"}
         )
+
+        if response is None:
+            return
 
         data = response.json()
 
@@ -479,12 +551,14 @@ def scrape_remotive():
             add_job(record)
 
     except Exception as error:
+
         print("Remotive error:", error)
+
         source_errors.append(f"Remotive: {error}")
 
 
 # ==========================================
-# 7. SAVE DATASET
+# 10. SAVE DATASET
 # ==========================================
 
 def save_results():
@@ -494,7 +568,9 @@ def save_results():
     df = pd.DataFrame(list(all_jobs.values()))
 
     if df.empty:
+
         print("No jobs were collected.")
+
         return
 
     df.drop_duplicates(
@@ -511,7 +587,9 @@ def save_results():
     )
 
     print("\nTotal unique IT jobs:", len(df))
+
     print("Target:", TARGET)
+
     print("Remaining:", max(0, TARGET - len(df)))
 
     print("\nJobs by source:")
@@ -521,34 +599,42 @@ def save_results():
     print("\nDataset saved: jobs_informatique.csv")
 
     if len(df) >= TARGET:
+
         print("\nTARGET REACHED: 2000 JOBS!")
+
     else:
+
         print("\nTarget not reached yet.")
+
         print("More sources or collection runs are needed.")
 
     if source_errors:
+
         print("\nSource errors:")
+
         for error in source_errors:
+
             print("-", error)
 
 
 # ==========================================
-# 8. MAIN PROGRAM
+# 11. MAIN PROGRAM
 # ==========================================
 
 if __name__ == "__main__":
 
     print("STARTING IT JOB DATA COLLECTION")
+
     print("Target:", TARGET)
 
-    # Collect from multiple sources
     scrape_weworkremotely()
+
     scrape_remoteok()
+
     scrape_remotive()
+
     scrape_himalayas()
 
-    # Save final dataset
     save_results()
 
     print("\nCOLLECTION FINISHED.")
-

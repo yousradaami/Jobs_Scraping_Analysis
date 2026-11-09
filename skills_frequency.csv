@@ -50,6 +50,7 @@ Ruby,69
 iOS,64
 Golang,64
 Azure DevOps,64
+Rust,61
 Laravel,60
 Google Cloud,60
 GitLab,57
@@ -59,8 +60,10 @@ Rails,53
 Django,52
 Kafka,46
 Cloud Computing,43
+Oracle,42
 Spark,41
 Excel,38
+Firmware,38
 Jenkins,37
 Grafana,34
 Flutter,26
@@ -72,14 +75,22 @@ Prometheus,19
 Elasticsearch,19
 Ansible,18
 Power BI,11
+PowerShell,10
 IT Support,10
 Cisco,7
 Help Desk,7
 Tableau,7
+Assembly,7
+COBOL,5
+Cryptography,5
 PHPUnit,5
+CICS,4
+Mainframe,4
+Microcontroller,4
 Dynamics 365,4
 Hadoop,3
 Penetration Testing,3
 Windows Server,3
+IDMS,2
 Joomla,2
 Mac OS,1

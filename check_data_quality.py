@@ -105,15 +105,26 @@ print("\n5. DUPLICATE URLS")
 print("-" * 40)
 
 if "Job_URL" in df.columns:
-    valid_urls = df["Job_URL"].dropna().astype(str).str.strip()
+    valid_urls = (
+        df["Job_URL"]
+        .dropna()
+        .astype(str)
+        .str.strip()
+    )
+
     valid_urls = valid_urls[valid_urls != ""]
 
-    duplicate_urls = valid_urls.duplicated().sum()
+    # Normalize URLs for comparison
+    normalized_urls = valid_urls.str.lower()
+
+    duplicate_urls = normalized_urls.duplicated().sum()
 
     print("Duplicate URLs:", duplicate_urls)
+
 else:
     duplicate_urls = None
     print("Job_URL column not found.")
+
 
 # =====================================
 # 7. Text formatting
